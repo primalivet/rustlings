@@ -35,10 +35,33 @@ impl Default for Person {
 // If while parsing the age, something goes wrong, then return the default of Person
 // Otherwise, then return an instantiated Person object with the results
 
-// I AM NOT DONE
-
 impl From<&str> for Person {
     fn from(s: &str) -> Person {
+        if s.len() < 1 {
+            Person::default()
+        } else {
+            // Split the string into a iter and collect to a vec
+            let parts: Vec<&str> = s.split(",").collect();
+            // get optinal first in parts and convert to String and then check if empty, if it
+            // eists in the fist place, and_then is like chain/bind, allowing for sequence
+            // composition
+            let name = parts.get(0).map(|n| n.to_string()).and_then(|x| {
+                if x.is_empty() {
+                    None
+                } else {
+                    Some(x)
+                }
+            });
+            // get optional second in parts and parse into a usize, it returns a Result and ".ok"
+            // converts it to an option, which we handle in the and_then / bind / chain
+            let age = parts.get(1).and_then(|a| a.parse::<usize>().ok());
+
+            // Match on length, name and age
+            match (parts.len(), name, age) {
+                (2, Some(name), Some(age)) => Person { name, age },
+                _ => Person::default(),
+            }
+        }
     }
 }
 
